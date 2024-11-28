@@ -1,6 +1,6 @@
 {
-    "name": "flutter_tolist",
-    "short_name": "flutter_tolist",
+    "name": "flutter_tolistapp",
+    "short_name": "flutter_tolistapp",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
