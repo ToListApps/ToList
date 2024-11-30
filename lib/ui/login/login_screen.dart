@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_tolist/data/provider/user_manager.dart';
-import 'package:flutter_tolist/ui/navigation/navigation_controller.dart';
+import 'package:flutter_tolistapp/data/provider/user_manager.dart';
+import 'package:flutter_tolistapp/ui/navigation/navigation_controller.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_button/sign_in_button.dart';

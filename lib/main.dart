@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_tolist/firebase_options.dart';
-import 'package:flutter_tolist/ui/login/login_screen.dart';
+import 'package:flutter_tolistapp/firebase_options.dart';
+import 'package:flutter_tolistapp/ui/login/login_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
@@ -11,6 +11,7 @@ void main() async {
   );
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -29,4 +30,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

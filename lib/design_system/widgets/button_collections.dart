@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tolist/design_system/styles/color_collections.dart';
-import 'package:flutter_tolist/design_system/styles/typography_collections.dart';
+import 'package:flutter_tolistapp/design_system/styles/color_collections.dart';
+import 'package:flutter_tolistapp/design_system/styles/typography_collections.dart';
 
 class ButtonCollections {
   static ElevatedButton primary({

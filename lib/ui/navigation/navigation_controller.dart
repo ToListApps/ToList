@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tolist/design_system/styles/color_collections.dart';
-import 'package:flutter_tolist/ui/home/home_screen.dart';
-import 'package:flutter_tolist/ui/schedule/schedule_screen.dart';
-import 'package:flutter_tolist/ui/settings/settings_screen.dart';
-import 'package:flutter_tolist/ui/task/task_screen.dart';
+import 'package:flutter_tolistapp/design_system/styles/color_collections.dart';
+import 'package:flutter_tolistapp/ui/home/home_screen.dart';
+import 'package:flutter_tolistapp/ui/schedule/schedule_screen.dart';
+import 'package:flutter_tolistapp/ui/settings/settings_screen.dart';
+import 'package:flutter_tolistapp/ui/task/task_screen.dart';
 
 class BottomNavigationController extends StatefulWidget {
   const BottomNavigationController({super.key});

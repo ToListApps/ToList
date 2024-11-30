@@ -1,10 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_tolist/data/provider/user_manager.dart';
-import 'package:flutter_tolist/design_system/styles/color_collections.dart';
-import 'package:flutter_tolist/design_system/styles/spacing_collections.dart';
-import 'package:flutter_tolist/design_system/styles/typography_collections.dart';
-import 'package:flutter_tolist/design_system/widgets/button_collections.dart';
+import 'package:flutter_tolistapp/data/provider/user_manager.dart';
+import 'package:flutter_tolistapp/design_system/styles/color_collections.dart';
+import 'package:flutter_tolistapp/design_system/styles/spacing_collections.dart';
+import 'package:flutter_tolistapp/design_system/styles/typography_collections.dart';
+import 'package:flutter_tolistapp/design_system/widgets/button_collections.dart';
+import 'package:flutter_tolistapp/design_system/widgets/chart.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -50,6 +51,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   color: ColorCollections.primary
                 )
               ),
+              const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Produktivitas:',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: ProductivityChart(),
+            ),
               SizedBox(height: SpacingCollections.xl),
               Container(
                 width: 255,
