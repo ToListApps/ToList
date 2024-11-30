@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tolist/firebase_options.dart';
 import 'package:flutter_tolist/ui/login/login_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_tolistapp/views/Dasboard/dashboard.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,6 +12,7 @@ void main() async {
   );
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -29,4 +31,5 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
 
