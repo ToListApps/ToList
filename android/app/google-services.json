@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1037072797683",
+    "project_id": "tolist-tubes",
+    "storage_bucket": "tolist-tubes.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1037072797683:android:35bde61fdea66cb1f98c86",
+        "android_client_info": {
+          "package_name": "com.example.flutter_tolist"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnfYL8ynw_CGFHGdaGSAaEe-H1zEPOe8Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
