@@ -7,10 +7,35 @@ class TugasScreen extends StatefulWidget {
 }
 
 class _TugasScreenState extends State<TugasScreen> {
-  bool isPrioritySelected = true; // Tab selection state
+  bool isPrioritySelected = true;
+  bool isCategorySelected = false;
+
+  final List<TaskData> tasks = [
+    TaskData(
+      startTime: "10.00",
+      endTime: "13.00",
+      title: "Design New UX flow for .....",
+      subtitle: "Prioritas | Start from screen 16",
+      category: "UX",
+      priority: true,
+      cardColor: Colors.green,
+    ),
+    TaskData(
+      startTime: "14.00",
+      endTime: "15.00",
+      title: "Brainstorm with the team",
+      subtitle: "Prioritas | Define the problem or ..",
+      category: "Pemrograman Perangkat Bergerak",
+      priority: false,
+      cardColor: Colors.purple,
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
+    List<TaskData> filteredTasks = isPrioritySelected
+        ? tasks.where((task) => task.priority).toList()
+        : tasks; // Default, semua tugas ditampilkan.
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -35,19 +60,20 @@ class _TugasScreenState extends State<TugasScreen> {
                 onTap: () {
                   setState(() {
                     isPrioritySelected = false;
+                    isCategorySelected = true;
                   });
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                       vertical: 8.0, horizontal: 16.0),
                   decoration: BoxDecoration(
-                    color: !isPrioritySelected ? Colors.black : Colors.white,
+                    color: isCategorySelected ? Colors.blue : Colors.white,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
                     "Kategori",
                     style: TextStyle(
-                      color: !isPrioritySelected ? Colors.white : Colors.black,
+                      color: isCategorySelected ? Colors.white : Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -60,6 +86,7 @@ class _TugasScreenState extends State<TugasScreen> {
                 onTap: () {
                   setState(() {
                     isPrioritySelected = true;
+                    isCategorySelected = false;
                   });
                 },
                 child: Container(
@@ -84,54 +111,105 @@ class _TugasScreenState extends State<TugasScreen> {
 
           // Task List
           Expanded(
-            child: ListView(
-              children: [
-                // Tasks for 17th
-                TaskDaySection(
-                  day: "17",
-                  weekday: "Wednesday",
-                  tasks: const [
-                    TaskCard(
-                      startTime: "10.00",
-                      endTime: "13.00",
-                      title: "Design New UX flow for .....",
-                      subtitle: "Prioritas | Start from screen 16",
-                      status: "",
-                      cardColor: Colors.green,
-                    ),
-                    TaskCard(
-                      startTime: "14.00",
-                      endTime: "15.00",
-                      title: "Brainstorm with the team",
-                      subtitle: "Prioritas | Define the problem or ..",
-                      status: "",
-                      cardColor: Colors.purple,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
+            child: isCategorySelected
+                ? ListView(
+                    children: _groupTasksByCategory(tasks).entries.map((entry) {
+                      return TaskDaySection(
+                        day: entry.key,
+                        weekday: "",
+                        tasks: entry.value.map((task) {
+                          return TaskCard(
+                            startTime: task.startTime,
+                            endTime: task.endTime,
+                            title: task.title,
+                            subtitle: task.subtitle,
+                            status: "",
+                            cardColor: task.cardColor,
+                          );
+                        }).toList(),
+                      );
+                    }).toList(),
+                  )
+                : ListView(
+                    children: [
+                      // Tasks for 17th
+                      TaskDaySection(
+                        day: "17",
+                        weekday: "Wednesday",
+                        tasks: const [
+                          TaskCard(
+                            startTime: "10.00",
+                            endTime: "13.00",
+                            title: "Design New UX flow for .....",
+                            subtitle: "Prioritas | Start from screen 16",
+                            status: "",
+                            cardColor: Colors.green,
+                          ),
+                          TaskCard(
+                            startTime: "14.00",
+                            endTime: "15.00",
+                            title: "Brainstorm with the team",
+                            subtitle: "Prioritas | Define the problem or ..",
+                            status: "",
+                            cardColor: Colors.purple,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
 
-                // Tasks for 18th
-                TaskDaySection(
-                  day: "18",
-                  weekday: "Thursday",
-                  tasks: const [],
-                ),
-                const SizedBox(height: 8),
+                      // Tasks for 18th
+                      TaskDaySection(
+                        day: "18",
+                        weekday: "Thursday",
+                        tasks: const [],
+                      ),
+                      const SizedBox(height: 8),
 
-                // Tasks for 19th
-                TaskDaySection(
-                  day: "19",
-                  weekday: "Friday",
-                  tasks: const [],
-                ),
-              ],
-            ),
+                      // Tasks for 19th
+                      TaskDaySection(
+                        day: "19",
+                        weekday: "Friday",
+                        tasks: const [],
+                      ),
+                    ],
+                  ),
           ),
         ],
       ),
     );
   }
+
+  Map<String, List<TaskData>> _groupTasksByCategory(List<TaskData> tasks) {
+    final Map<String, List<TaskData>> groupedTasks = {};
+    for (var task in tasks) {
+      if (!groupedTasks.containsKey(task.category)) {
+        groupedTasks[task.category] = [];
+      }
+      groupedTasks[task.category]!.add(task);
+    }
+    return groupedTasks;
+  }
+}
+
+// Task data model
+class TaskData {
+  final String startTime;
+  final String endTime;
+  final String title;
+  final String subtitle;
+  final String category;
+  final bool priority;
+  final Color cardColor;
+
+  TaskData({
+    required this.startTime,
+    required this.endTime,
+    required this.title,
+    required this.subtitle,
+    required this.category,
+    required this.priority,
+    required this.cardColor,
+  });
 }
 
 // Widget for grouping tasks by day
