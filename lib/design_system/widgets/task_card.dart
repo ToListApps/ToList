@@ -8,7 +8,7 @@ class TaskCard extends StatelessWidget {
   final String status; // Status tugas
   final Color cardColor; // Warna indikator tugas
 
-  const TaskCard({
+  const TaskCard({super.key, 
     required this.startTime,
     required this.endTime,
     required this.title,
@@ -48,7 +48,7 @@ class TaskCard extends StatelessWidget {
                   // Waktu
                   Text(
                     "$startTime - $endTime",
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
                       color: Colors.grey,
                     ),
@@ -58,7 +58,7 @@ class TaskCard extends StatelessWidget {
                   // Judul Tugas
                   Text(
                     title,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -68,7 +68,7 @@ class TaskCard extends StatelessWidget {
                   // Subjudul
                   Text(
                     subtitle,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
                       color: Colors.grey,
                     ),
@@ -78,7 +78,7 @@ class TaskCard extends StatelessWidget {
                   // Status
                   Text(
                     status,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
                       color: Colors.black,
                     ),
@@ -88,7 +88,7 @@ class TaskCard extends StatelessWidget {
             ),
 
             // Ikon Opsi
-            Icon(
+            const Icon(
               Icons.more_vert,
               color: Colors.grey,
             ),

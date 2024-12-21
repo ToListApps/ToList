@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class ProductivityChart extends StatelessWidget {
+  const ProductivityChart({super.key});
+
   @override
   Widget build(BuildContext context) {
     return BarChart(
@@ -45,7 +47,7 @@ class ProductivityChart extends StatelessWidget {
           ),
         ),
         borderData: FlBorderData(show: true),
-        gridData: FlGridData(show: false),
+        gridData: const FlGridData(show: false),
         barGroups: [
           BarChartGroupData(x: 0, barRods: [
             BarChartRodData(

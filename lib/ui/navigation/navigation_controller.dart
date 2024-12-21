@@ -14,11 +14,11 @@ class BottomNavigationController extends StatefulWidget {
 
 class BottomNavigationControllerState extends State<BottomNavigationController> {
   int _currentIndex = 0;
-  static List<Widget> _page = <Widget> [
-    HomeScreen(),
-    ScheduleScreen(),
-    TaskScreen(),
-    SettingsScreen()
+  static final List<Widget> _page = <Widget> [
+    const HomeScreen(),
+    const ScheduleScreen(),
+    const TaskScreen(),
+    const SettingsScreen()
   ];
 
   void _onItemTapped(int index) {

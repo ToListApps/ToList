@@ -71,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 });
               },
               calendarStyle: CalendarStyle(
-                selectedDecoration: BoxDecoration(
+                selectedDecoration: const BoxDecoration(
                   color: Colors.blue,
                   shape: BoxShape.circle,
                 ),
@@ -81,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 markersMaxCount: 1,
               ),
-              headerStyle: HeaderStyle(
+              headerStyle: const HeaderStyle(
                 formatButtonVisible: false,
                 titleCentered: true,
               ),
@@ -89,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 20),
 
             // Task List Header
-            Text(
+            const Text(
               "Today's Tasks",
               style: TextStyle(
                 fontSize: 18,

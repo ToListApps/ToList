@@ -33,7 +33,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   color: ColorCollections.primary
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: SpacingCollections.xxl,
               ),
               Container(
@@ -44,7 +44,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   borderRadius: BorderRadius.circular(30)
                 ),
               ),
-              SizedBox(height: SpacingCollections.xl),
+              const SizedBox(height: SpacingCollections.xl),
               Text(
                 '${user!.displayName}',
                 style: TypographyCollections.sh2.copyWith(
@@ -65,8 +65,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Expanded(
               child: ProductivityChart(),
             ),
-              SizedBox(height: SpacingCollections.xl),
-              Container(
+              const SizedBox(height: SpacingCollections.xl),
+              SizedBox(
                 width: 255,
                 child: ButtonCollections.primary(
                   onPressed: () async {
@@ -90,7 +90,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } catch (error) {
       print('Logout Gagal: $error');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Logout Gagal'))
+        const SnackBar(content: Text('Logout Gagal'))
       );
     }
   }

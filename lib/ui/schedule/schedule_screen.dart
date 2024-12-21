@@ -29,7 +29,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 children: [
                   Text(
                     "${_focusedDay.day} ${_getMonthName(_focusedDay.month)} ${_focusedDay.year}",
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
@@ -59,7 +59,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         color: Colors.blue[100],
                         shape: BoxShape.circle,
                       ),
-                      selectedDecoration: BoxDecoration(
+                      selectedDecoration: const BoxDecoration(
                         color: Colors.blue,
                         shape: BoxShape.circle,
                       ),

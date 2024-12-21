@@ -20,7 +20,7 @@ class _TaskScreenState extends State<TaskScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          Text(
+          const Text(
             "Tugas",
             style: TextStyle(
               fontSize: 24,
@@ -88,12 +88,12 @@ class _TaskScreenState extends State<TaskScreen> {
           // Task List
           Expanded(
             child: ListView(
-              children: [
+              children: const [
                 // Tasks for 17th
                 TaskDaySection(
                   day: "17",
                   weekday: "Wednesday",
-                  tasks: const [
+                  tasks: [
                     TaskCard(
                       startTime: "10.00",
                       endTime: "13.00",
@@ -112,21 +112,21 @@ class _TaskScreenState extends State<TaskScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
 
                 // Tasks for 18th
                 TaskDaySection(
                   day: "18",
                   weekday: "Thursday",
-                  tasks: const [],
+                  tasks: [],
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
 
                 // Tasks for 19th
                 TaskDaySection(
                   day: "19",
                   weekday: "Friday",
-                  tasks: const [],
+                  tasks: [],
                 ),
               ],
             ),
@@ -142,7 +142,7 @@ class TaskDaySection extends StatelessWidget {
   final String weekday;
   final List<TaskCard> tasks;
 
-  const TaskDaySection({
+  const TaskDaySection({super.key, 
     required this.day,
     required this.weekday,
     required this.tasks,
@@ -158,7 +158,7 @@ class TaskDaySection extends StatelessWidget {
           children: [
             Text(
               day,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
@@ -166,7 +166,7 @@ class TaskDaySection extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               weekday,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 color: Colors.grey,
               ),
@@ -178,8 +178,8 @@ class TaskDaySection extends StatelessWidget {
         // Tasks or empty state
         tasks.isNotEmpty
             ? Column(children: tasks)
-            : Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
+            : const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16.0),
                 child: Text(
                   "Tidak ada tugas",
                   style: TextStyle(

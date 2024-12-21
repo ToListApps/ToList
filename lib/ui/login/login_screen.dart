@@ -14,7 +14,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
@@ -34,7 +33,15 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _user != null ? _userInfo() : _googleSignInButton(),
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/logiinpage.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: _user != null ? _userInfo() : _googleSignInButton(),
+      ),
     );
   }
 
@@ -46,9 +53,8 @@ class _LoginScreenState extends State<LoginScreen> {
           Buttons.google,
           text: 'Continue with Google',
           onPressed: _handleGoogleSignIn,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10)
-          ),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
       ),
     );
@@ -58,10 +64,8 @@ class _LoginScreenState extends State<LoginScreen> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        useMaterial3: true,
-        textTheme: GoogleFonts.poppinsTextTheme()
-      ),
-      home: BottomNavigationController(),
+          useMaterial3: true, textTheme: GoogleFonts.poppinsTextTheme()),
+      home: const BottomNavigationController(),
     );
   }
 
@@ -72,19 +76,17 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
       final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken
-      );
+          accessToken: googleAuth.accessToken, idToken: googleAuth.idToken);
 
       await _auth.signInWithCredential(credential);
     } catch (error) {
       print('Login Google gagal: $error');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login Google gagal: $error'))
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Login Google gagal: $error')));
     }
   }
 }
