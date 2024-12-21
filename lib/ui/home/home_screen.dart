@@ -15,6 +15,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final user = UserManager().getUser();
+  bool _isCalendarExpanded = true; // Mengatur status kalender
+  DateTime _selectedDay = DateTime.now();
+  DateTime _focusedDay = DateTime.now();
 
   String getGreetings() {
     final hour = DateTime.now().hour;
@@ -28,102 +31,133 @@ class _HomeScreenState extends State<HomeScreen> {
       return "Selamat Malam";
     }
   }
-  DateTime _selectedDay = DateTime.now();
-  DateTime _focusedDay = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: SpacingCollections.paddingScreen,
-        child: Center(
-          child: Column(
-            children: [
+      body: Stack(
+        children: [
+          // Background Image
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/homepage.png',
+              fit: BoxFit.fill,
+            ),
+          ),
+          Padding(
+            padding: SpacingCollections.paddingScreen,
+            child: Column(
+              children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '${getGreetings()}, \n${user!.displayName ?? ''}', 
+                      '${getGreetings()}, \n${user!.displayName ?? ''}',
                       style: TypographyCollections.sh1.copyWith(
-                        color: ColorCollections.primary
-                      )),
+                        color: ColorCollections.primary,
+                      ),
+                    ),
                     Container(
                       height: 50,
                       width: 50,
                       decoration: BoxDecoration(
-                        image: DecorationImage(image: NetworkImage(user!.photoURL!)),
-                        borderRadius: BorderRadius.circular(25)
+                        image: DecorationImage(
+                          image: NetworkImage(user!.photoURL!),
+                        ),
+                        borderRadius: BorderRadius.circular(25),
                       ),
-                    )
+                    ),
                   ],
                 ),
-                TableCalendar(
-              firstDay: DateTime.utc(2020, 1, 1),
-              lastDay: DateTime.utc(2030, 12, 31),
-              focusedDay: _focusedDay,
-              selectedDayPredicate: (day) {
-                return isSameDay(_selectedDay, day);
-              },
-              onDaySelected: (selectedDay, focusedDay) {
-                setState(() {
-                  _selectedDay = selectedDay;
-                  _focusedDay = focusedDay;
-                });
-              },
-              calendarStyle: CalendarStyle(
-                selectedDecoration: const BoxDecoration(
-                  color: Colors.blue,
-                  shape: BoxShape.circle,
-                ),
-                todayDecoration: BoxDecoration(
-                  color: Colors.blue[100],
-                  shape: BoxShape.circle,
-                ),
-                markersMaxCount: 1,
-              ),
-              headerStyle: const HeaderStyle(
-                formatButtonVisible: false,
-                titleCentered: true,
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Task List Header
-            const Text(
-              "Today's Tasks",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 10),
-
-            // Task List
-            Expanded(
-              child: ListView(
-                children: const [
-                  TaskCard(
-                    startTime: "10.00",
-                    endTime: "13.00",
-                    title: "Design New UX flow for .....",
-                    subtitle: "Start from screen 16",
-                    status: "1 Assignment Successfully",
-                    cardColor: Colors.green,
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    height: _isCalendarExpanded ? 350 : 80,
+                    child: SingleChildScrollView(
+                      physics: _isCalendarExpanded
+                          ? const NeverScrollableScrollPhysics()
+                          : const AlwaysScrollableScrollPhysics(),
+                      child: TableCalendar(
+                        firstDay: DateTime.utc(2020, 1, 1),
+                        lastDay: DateTime.utc(2030, 12, 31),
+                        focusedDay: _focusedDay,
+                        selectedDayPredicate: (day) {
+                          return isSameDay(_selectedDay, day);
+                        },
+                        onDaySelected: (selectedDay, focusedDay) {
+                          setState(() {
+                            _selectedDay = selectedDay;
+                            _focusedDay = focusedDay;
+                          });
+                        },
+                        calendarStyle: CalendarStyle(
+                          selectedDecoration: const BoxDecoration(
+                            color: Colors.blue,
+                            shape: BoxShape.circle,
+                          ),
+                          todayDecoration: BoxDecoration(
+                            color: Colors.blue[100],
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        headerStyle: const HeaderStyle(
+                          formatButtonVisible: false,
+                          titleCentered: true,
+                        ),
+                      ),
+                    ),
                   ),
-                  TaskCard(
-                    startTime: "14.00",
-                    endTime: "15.00",
-                    title: "Brainstorm with the team",
-                    subtitle: "Define the problem or ...",
-                    status: "1 Assignment Missing",
-                    cardColor: Colors.purple,
+                ),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _isCalendarExpanded = !_isCalendarExpanded;
+                    });
+                  },
+                  icon: Icon(
+                    _isCalendarExpanded
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 20),
+                // Task List Header
+                const Text(
+                  "Today's Tasks",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // Task List
+                Expanded(
+                  child: ListView(
+                    children: const [
+                      TaskCard(
+                        startTime: "10.00",
+                        endTime: "13.00",
+                        title: "Design New UX flow for .....",
+                        subtitle: "Start from screen 16",
+                        status: "1 Assignment Successfully",
+                        cardColor: Colors.green,
+                      ),
+                      TaskCard(
+                        startTime: "14.00",
+                        endTime: "15.00",
+                        title: "Brainstorm with the team",
+                        subtitle: "Define the problem or ...",
+                        status: "1 Assignment Missing",
+                        cardColor: Colors.purple,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            ],
           ),
-        ),
+        ],
       ),
     );
   }

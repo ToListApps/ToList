@@ -14,126 +14,139 @@ class _TaskScreenState extends State<TaskScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Padding(
-      padding: SpacingCollections.paddingScreen,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: Stack(
         children: [
-          // Header
-          const Text(
-            "Tugas",
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+          // Background Image
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/tugaspage.png', // Path to your background image
+              fit: BoxFit.fill,
             ),
           ),
-          const SizedBox(height: 16),
-
-          // Tab Selector
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Kategori Button
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    isPrioritySelected = false;
-                  });
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 8.0, horizontal: 16.0),
-                  decoration: BoxDecoration(
-                    color: !isPrioritySelected ? Colors.black : Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    "Kategori",
-                    style: TextStyle(
-                      color: !isPrioritySelected ? Colors.white : Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
+          // Main Content
+          Padding(
+            padding: SpacingCollections.paddingScreen,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                const Text(
+                  "Tugas",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-              const SizedBox(width: 8),
+                const SizedBox(height: 16),
 
-              // Priority Button
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    isPrioritySelected = true;
-                  });
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 8.0, horizontal: 16.0),
-                  decoration: BoxDecoration(
-                    color: isPrioritySelected ? Colors.blue : Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    "Priority",
-                    style: TextStyle(
-                      color: isPrioritySelected ? Colors.white : Colors.black,
-                      fontWeight: FontWeight.bold,
+                // Tab Selector
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Kategori Button
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isPrioritySelected = false;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8.0, horizontal: 16.0),
+                        decoration: BoxDecoration(
+                          color: !isPrioritySelected ? Colors.black : Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          "Kategori",
+                          style: TextStyle(
+                            color: !isPrioritySelected ? Colors.white : Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
+                    const SizedBox(width: 8),
 
-          // Task List
-          Expanded(
-            child: ListView(
-              children: const [
-                // Tasks for 17th
-                TaskDaySection(
-                  day: "17",
-                  weekday: "Wednesday",
-                  tasks: [
-                    TaskCard(
-                      startTime: "10.00",
-                      endTime: "13.00",
-                      title: "Design New UX flow for .....",
-                      subtitle: "Prioritas | Start from screen 16",
-                      status: "",
-                      cardColor: Colors.green,
-                    ),
-                    TaskCard(
-                      startTime: "14.00",
-                      endTime: "15.00",
-                      title: "Brainstorm with the team",
-                      subtitle: "Prioritas | Define the problem or ..",
-                      status: "",
-                      cardColor: Colors.purple,
+                    // Priority Button
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isPrioritySelected = true;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8.0, horizontal: 16.0),
+                        decoration: BoxDecoration(
+                          color: isPrioritySelected ? Colors.blue : Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          "Priority",
+                          style: TextStyle(
+                            color: isPrioritySelected ? Colors.white : Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 16),
 
-                // Tasks for 18th
-                TaskDaySection(
-                  day: "18",
-                  weekday: "Thursday",
-                  tasks: [],
-                ),
-                SizedBox(height: 8),
+                // Task List
+                Expanded(
+                  child: ListView(
+                    children: const [
+                      // Tasks for 17th
+                      TaskDaySection(
+                        day: "17",
+                        weekday: "Wednesday",
+                        tasks: [
+                          TaskCard(
+                            startTime: "10.00",
+                            endTime: "13.00",
+                            title: "Design New UX flow for .....",
+                            subtitle: "Prioritas | Start from screen 16",
+                            status: "",
+                            cardColor: Colors.green,
+                          ),
+                          TaskCard(
+                            startTime: "14.00",
+                            endTime: "15.00",
+                            title: "Brainstorm with the team",
+                            subtitle: "Prioritas | Define the problem or ..",
+                            status: "",
+                            cardColor: Colors.purple,
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8),
 
-                // Tasks for 19th
-                TaskDaySection(
-                  day: "19",
-                  weekday: "Friday",
-                  tasks: [],
+                      // Tasks for 18th
+                      TaskDaySection(
+                        day: "18",
+                        weekday: "Thursday",
+                        tasks: [],
+                      ),
+                      SizedBox(height: 8),
+
+                      // Tasks for 19th
+                      TaskDaySection(
+                        day: "19",
+                        weekday: "Friday",
+                        tasks: [],
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
         ],
       ),
-    ));
+    );
   }
 }
 
