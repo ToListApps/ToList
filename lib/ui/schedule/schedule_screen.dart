@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tolistapp/design_system/styles/spacing_collections.dart';
+import 'package:flutter_tolistapp/design_system/widgets/task_card.dart';
 import 'package:table_calendar/table_calendar.dart';
-import '../../widgets/task_card.dart'; // Import widget reusable TaskCard
 
-class JadwalScreen extends StatefulWidget {
+class ScheduleScreen extends StatefulWidget {
+  const ScheduleScreen({super.key});
+
   @override
-  _JadwalScreenState createState() => _JadwalScreenState();
+  State<ScheduleScreen> createState() => _ScheduleScreenState();
 }
 
-class _JadwalScreenState extends State<JadwalScreen> {
+class _ScheduleScreenState extends State<ScheduleScreen> {
   DateTime _selectedDay = DateTime.now();
   DateTime _focusedDay = DateTime.now();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
+        body: Padding(
+          padding: SpacingCollections.paddingScreen,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -26,7 +29,7 @@ class _JadwalScreenState extends State<JadwalScreen> {
                 children: [
                   Text(
                     "${_focusedDay.day} ${_getMonthName(_focusedDay.month)} ${_focusedDay.year}",
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
@@ -56,7 +59,7 @@ class _JadwalScreenState extends State<JadwalScreen> {
                         color: Colors.blue[100],
                         shape: BoxShape.circle,
                       ),
-                      selectedDecoration: BoxDecoration(
+                      selectedDecoration: const BoxDecoration(
                         color: Colors.blue,
                         shape: BoxShape.circle,
                       ),
@@ -103,12 +106,11 @@ class _JadwalScreenState extends State<JadwalScreen> {
           // Tambahkan fungsi untuk action di sini
         },
         child: const Icon(Icons.add),
-      ),
-    );
+      ),);
   }
+}
 
-  // Fungsi untuk mendapatkan nama bulan
-  String _getMonthName(int month) {
+String _getMonthName(int month) {
     const monthNames = [
       "Januari",
       "Februari",
@@ -125,4 +127,3 @@ class _JadwalScreenState extends State<JadwalScreen> {
     ];
     return monthNames[month - 1];
   }
-}
