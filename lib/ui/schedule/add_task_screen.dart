@@ -163,42 +163,46 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   }
 
   Future<void> _addTaskToSupabase({
-    required String nama,
-    required String deskripsi,
-    required DateTime tanggal,
-    required String waktuMulai,
-    required String waktuAkhir,
-    required List<Map<String, dynamic>> kategori,
-    required bool prioritas,
-    required DateTime tanggalAkhir,
-  }) async {
-    final supabase = Supabase.instance.client;
+  required String nama,
+  required String deskripsi,
+  required DateTime tanggal_awal,
+  required String waktuMulai,
+  required String waktuAkhir,
+  required List<Map<String, dynamic>> kategori,
+  required bool prioritas,
+  required DateTime tanggalAkhir,
+}) async {
+  final supabase = Supabase.instance.client;
 
-    try {
-      final response = await supabase.from('tasks').insert({
-        'nama': nama,
-        'deskripsi': deskripsi,
-        'tanggal': tanggal.toIso8601String(),
-        'waktu_mulai': waktuMulai,
-        'waktu_akhir': waktuAkhir,
-        'kategori': kategori, // Langsung gunakan kategori sebagai JSON
-        'prioritas': prioritas,
-        'tanggal_akhir': tanggalAkhir.toIso8601String(),
-      });
+  try {
+    final response = await supabase.from('tolist').insert({
+      'nama': nama,
+      'deskripsi': deskripsi,
+      'tanggal_awal': tanggal_awal.toIso8601String(),
+      'waktu_mulai': waktuMulai,
+      'waktu_akhir': waktuAkhir,
+      'kategori': kategori, // Langsung gunakan kategori sebagai JSON
+      'prioritas': prioritas,
+      'tanggal_akhir': tanggalAkhir.toIso8601String(),
+    }).select(); // Tambahkan .select() untuk memastikan hasil respons valid
 
-      if (response.error == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Tugas berhasil ditambahkan!')),
-        );
-      } else {
-        throw Exception('Gagal menambahkan tugas: ${response.error!.message}');
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+    if (response.isEmpty) {
+      throw Exception('Respons dari server kosong atau null');
     }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Tugas berhasil ditambahkan!')),
+    );
+  } catch (e) {
+    // Tampilkan error di logcat untuk debugging
+    debugPrint('Error saat menambahkan tugas: $e');
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error: $e')),
+    );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -382,7 +386,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
                         final nama = _namaController.text;
                         final deskripsi = _deskripsiController.text;
-                        final tanggal = selectedStartDate!;
+                        final tanggal_awal = selectedStartDate!;
                         final tanggalAkhir = selectedEndDate!;
                         final waktuMulai =
                             '${selectedStartTime!.hour}:${selectedStartTime!.minute}';
@@ -393,7 +397,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                         _addTaskToSupabase(
                           nama: nama,
                           deskripsi: deskripsi,
-                          tanggal: tanggal,
+                          tanggal_awal: tanggal_awal,
                           waktuMulai: waktuMulai,
                           waktuAkhir: waktuAkhir,
                           kategori: _selectedCategories,
