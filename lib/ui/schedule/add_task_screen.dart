@@ -7,6 +7,7 @@ import 'package:flutter_tolistapp/design_system/widgets/button_collections.dart'
 import 'package:flutter_tolistapp/design_system/widgets/dialog_collections.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AddTaskScreen extends StatefulWidget {
   const AddTaskScreen({super.key});
@@ -23,6 +24,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   DateTime? selectedEndTime;
 
   final List<Map<String, dynamic>> _selectedCategories = [];
+  final TextEditingController _namaController = TextEditingController();
+  final TextEditingController _deskripsiController = TextEditingController();
 
   @override
   void initState() {
@@ -159,6 +162,44 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     }
   }
 
+  Future<void> _addTaskToSupabase({
+    required String nama,
+    required String deskripsi,
+    required DateTime tanggal,
+    required String waktuMulai,
+    required String waktuAkhir,
+    required List<Map<String, dynamic>> kategori,
+    required bool prioritas,
+    required DateTime tanggalAkhir,
+  }) async {
+    final supabase = Supabase.instance.client;
+
+    try {
+      final response = await supabase.from('tasks').insert({
+        'nama': nama,
+        'deskripsi': deskripsi,
+        'tanggal': tanggal.toIso8601String(),
+        'waktu_mulai': waktuMulai,
+        'waktu_akhir': waktuAkhir,
+        'kategori': kategori, // Langsung gunakan kategori sebagai JSON
+        'prioritas': prioritas,
+        'tanggal_akhir': tanggalAkhir.toIso8601String(),
+      });
+
+      if (response.error == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Tugas berhasil ditambahkan!')),
+        );
+      } else {
+        throw Exception('Gagal menambahkan tugas: ${response.error!.message}');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -179,6 +220,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 ),
                 SizedBox(height: SpacingCollections.xl),
                 TextField(
+                  controller: _namaController,
                   decoration: InputDecoration(
                     hintText: 'Nama Tugas',
                     border: OutlineInputBorder(
@@ -188,6 +230,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 ),
                 SizedBox(height: SpacingCollections.xl),
                 TextField(
+                  controller: _deskripsiController,
                   maxLines: 3,
                   decoration: InputDecoration(
                     hintText: 'Deskripsi...',
@@ -290,7 +333,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   spacing: SpacingCollections.l,
                   children: [
                     ..._selectedCategories.map((category) {
-                      return _buildCategoryChip(category['name'], category['color']);
+                      return _buildCategoryChip(
+                          category['name'], category['color']);
                     }).toList(),
                     GestureDetector(
                       onTap: _addCategory,
@@ -325,7 +369,37 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     width: 255,
                     child: ButtonCollections.primary(
                       onPressed: () {
-                        // Logika untuk menyimpan data tugas
+                        if (_namaController.text.isEmpty ||
+                            selectedStartDate == null ||
+                            selectedStartTime == null ||
+                            selectedEndDate == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Mohon lengkapi semua data')),
+                          );
+                          return;
+                        }
+
+                        final nama = _namaController.text;
+                        final deskripsi = _deskripsiController.text;
+                        final tanggal = selectedStartDate!;
+                        final tanggalAkhir = selectedEndDate!;
+                        final waktuMulai =
+                            '${selectedStartTime!.hour}:${selectedStartTime!.minute}';
+                        final waktuAkhir =
+                            '${selectedEndTime!.hour}:${selectedEndTime!.minute}';
+                        final prioritas = isPriority;
+
+                        _addTaskToSupabase(
+                          nama: nama,
+                          deskripsi: deskripsi,
+                          tanggal: tanggal,
+                          waktuMulai: waktuMulai,
+                          waktuAkhir: waktuAkhir,
+                          kategori: _selectedCategories,
+                          prioritas: prioritas,
+                          tanggalAkhir: tanggalAkhir,
+                        );
                       },
                       text: 'Tambah Tugas',
                     ),
