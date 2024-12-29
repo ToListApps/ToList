@@ -121,7 +121,8 @@ class TaskDaySection extends StatelessWidget {
   final String weekday;
   final List<TaskCard> tasks;
 
-  const TaskDaySection({super.key, 
+  const TaskDaySection({
+    super.key,
     required this.day,
     required this.weekday,
     required this.tasks,
