@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tolistapp/design_system/styles/color_collections.dart';
 import 'package:flutter_tolistapp/design_system/styles/spacing_collections.dart';
 import 'package:flutter_tolistapp/design_system/widgets/task_card.dart';
+import 'package:flutter_tolistapp/ui/schedule/add_task_screen.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class ScheduleScreen extends StatefulWidget {
@@ -19,7 +21,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/jadwalpage.png'), // Path to your PNG file
+            image: AssetImage(
+                'assets/images/jadwalpage.png'), // Path to your PNG file
             fit: BoxFit.fill,
           ),
         ),
@@ -30,9 +33,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             children: [
               // Header Calendar
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                padding: const EdgeInsets.symmetric(horizontal: SpacingCollections.xl),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
                       "${_focusedDay.day} ${_getMonthName(_focusedDay.month)} ${_focusedDay.year}",
@@ -41,7 +44,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: SpacingCollections.l),
                     TableCalendar(
                       firstDay: DateTime.utc(2020, 1, 1),
                       lastDay: DateTime.utc(2030, 12, 31),
@@ -77,12 +80,11 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 10),
 
               // Task List
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  padding: const EdgeInsets.symmetric(horizontal: SpacingCollections.xl),
                   child: ListView(
                     children: const [
                       TaskCard(
@@ -111,9 +113,11 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Tambahkan fungsi untuk action di sini
+          Navigator.push(
+              context, MaterialPageRoute(builder: (_) => AddTaskScreen()));
         },
-        child: const Icon(Icons.add),
+        backgroundColor: ColorCollections.primary,
+        child: const Icon(Icons.add, color: ColorCollections.white),
       ),
     );
   }

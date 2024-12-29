@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tolistapp/design_system/styles/color_collections.dart';
 import 'package:flutter_tolistapp/design_system/styles/spacing_collections.dart';
+import 'package:flutter_tolistapp/design_system/styles/typography_collections.dart';
 import 'package:flutter_tolistapp/design_system/widgets/task_card.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 
 class TaskScreen extends StatefulWidget {
   const TaskScreen({super.key});
@@ -30,71 +33,34 @@ class _TaskScreenState extends State<TaskScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Header
-                const Text(
-                  "Tugas",
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                Center(
+                  child: Text(
+                    "Tugas",
+                    style: TypographyCollections.h1.copyWith(
+                        color: ColorCollections.primary,
+                      ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: SpacingCollections.xl),
 
-                // Tab Selector
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Kategori Button
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          isPrioritySelected = false;
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8.0, horizontal: 16.0),
-                        decoration: BoxDecoration(
-                          color: !isPrioritySelected ? Colors.black : Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text(
-                          "Kategori",
-                          style: TextStyle(
-                            color: !isPrioritySelected ? Colors.white : Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-
-                    // Priority Button
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          isPrioritySelected = true;
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8.0, horizontal: 16.0),
-                        decoration: BoxDecoration(
-                          color: isPrioritySelected ? Colors.blue : Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text(
-                          "Priority",
-                          style: TextStyle(
-                            color: isPrioritySelected ? Colors.white : Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                Center(
+                  child: ToggleSwitch(
+                    minWidth: 150,
+                    cornerRadius: 20.0,
+                    activeBgColors: [[ColorCollections.lightBlue], [ColorCollections.lightBlue]],
+                    activeFgColor: Colors.white,
+                    inactiveBgColor: ColorCollections.primary,
+                    inactiveFgColor: Colors.white,
+                    initialLabelIndex: 1,
+                    totalSwitches: 2,
+                    labels: ['Kategori', 'Prioritas'],
+                    radiusStyle: true,
+                    onToggle: (index) {
+                      print('switched to: $index');
+                    },
+                  ),
                 ),
-                const SizedBox(height: 16),
-
+                const SizedBox(height: SpacingCollections.xl),
                 // Task List
                 Expanded(
                   child: ListView(

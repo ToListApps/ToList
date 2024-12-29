@@ -11,7 +11,7 @@ class ButtonCollections {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: ColorCollections.primary,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)
         )
       ),
       child: Text(text, style: TypographyCollections.sh2.copyWith(
