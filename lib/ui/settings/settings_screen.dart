@@ -22,60 +22,68 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: SpacingCollections.paddingScreen,
-        child: Center(
-          child: Column(
-            children: [
-              Text(
-                'Pengaturan',
-                style: TypographyCollections.h1.copyWith(
-                  color: ColorCollections.primary
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/settingpage.png'), // Path to your PNG file
+            fit: BoxFit.fill,
+          ),
+        ),
+        child: Padding(
+          padding: SpacingCollections.paddingScreen,
+          child: Center(
+            child: Column(
+              children: [
+                Text(
+                  'Pengaturan',
+                  style: TypographyCollections.h1.copyWith(
+                    color: ColorCollections.primary
+                  ),
                 ),
-              ),
-              const SizedBox(
-                height: SpacingCollections.xxl,
-              ),
-              Container(
-                height: 80,
-                width: 80,
-                decoration: BoxDecoration(
-                  image: DecorationImage(image: NetworkImage(user!.photoURL!)),
-                  borderRadius: BorderRadius.circular(30)
+                const SizedBox(
+                  height: SpacingCollections.xxl,
+                ),
+                Container(
+                  height: 80,
+                  width: 80,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(image: NetworkImage(user!.photoURL!)),
+                    borderRadius: BorderRadius.circular(30)
+                  ),
+                ),
+                const SizedBox(height: SpacingCollections.xl),
+                Text(
+                  '${user!.displayName}',
+                  style: TypographyCollections.sh2.copyWith(
+                    color: ColorCollections.primary
+                  )
+                ),
+                const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Produktivitas:',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               const SizedBox(height: SpacingCollections.xl),
-              Text(
-                '${user!.displayName}',
-                style: TypographyCollections.sh2.copyWith(
-                  color: ColorCollections.primary
-                )
+              Expanded(
+                child: ProductivityChart(),
               ),
-              const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Produktivitas:',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                const SizedBox(height: SpacingCollections.xl),
+                SizedBox(
+                  width: 255,
+                  child: ButtonCollections.primary(
+                    onPressed: () async {
+                      await _logout();
+                    }, 
+                    text: 'Logout'
+                  ),
                 ),
-              ),
+              ],
             ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: ProductivityChart(),
-            ),
-              const SizedBox(height: SpacingCollections.xl),
-              SizedBox(
-                width: 255,
-                child: ButtonCollections.primary(
-                  onPressed: () async {
-                    await _logout();
-                  }, 
-                  text: 'Logout'
-                ),
-              ),
-            ],
           ),
         ),
       ),
