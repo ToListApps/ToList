@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_tolistapp/design_system/styles/color_collections.dart';
 import 'package:flutter_tolistapp/design_system/styles/spacing_collections.dart';
 import 'package:flutter_tolistapp/design_system/styles/typography_collections.dart';
 import 'package:flutter_tolistapp/design_system/widgets/task_card.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:toggle_switch/toggle_switch.dart';
+import 'package:intl/intl.dart'; // Untuk format tanggal dan hari
 
 class TaskScreen extends StatefulWidget {
   const TaskScreen({super.key});
@@ -14,6 +18,71 @@ class TaskScreen extends StatefulWidget {
 
 class _TaskScreenState extends State<TaskScreen> {
   bool isPrioritySelected = true;
+  List<Map<String, dynamic>> _priorityTasks = [];
+  Map<String, List<Map<String, dynamic>>> _categorizedTasks = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTasks();
+  }
+
+  Future<void> _fetchTasks() async {
+    final supabase = Supabase.instance.client;
+
+    try {
+      final response = await supabase.from('tolist').select('*');
+
+      List<Map<String, dynamic>> tasks =
+          List<Map<String, dynamic>>.from(response);
+
+      // Parsing kategori JSON ke List/Map
+      for (var task in tasks) {
+        if (task['kategori'] is String) {
+          task['kategori'] = List<Map<String, dynamic>>.from(
+            jsonDecode(task['kategori']),
+          );
+        }
+      }
+
+      // Pisahkan berdasarkan prioritas
+      List<Map<String, dynamic>> priorityTasks =
+          tasks.where((task) => task['prioritas'] == true).toList();
+
+      // Kelompokkan berdasarkan kategori
+      Map<String, List<Map<String, dynamic>>> categorizedTasks = {};
+      for (var task in tasks.where((task) => task['prioritas'] == false)) {
+        // Pastikan kategori adalah List<Map>
+        List<dynamic> kategoriList = task['kategori'] ?? [];
+        for (var kategori in kategoriList) {
+          // Pastikan kita hanya mengambil nama dari kategori
+          String kategoriName = kategori['name'] ?? "Lainnya";
+          if (!categorizedTasks.containsKey(kategoriName)) {
+            categorizedTasks[kategoriName] = [];
+          }
+          categorizedTasks[kategoriName]!.add(task);
+        }
+      }
+
+      setState(() {
+        _priorityTasks = priorityTasks;
+        _categorizedTasks = categorizedTasks;
+      });
+        } catch (e) {
+      debugPrint('Error fetching tasks: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching tasks: $e')),
+      );
+    }
+  }
+
+  String _getFormattedDate(String date) {
+    final DateTime parsedDate = DateTime.parse(date);
+    final String formattedDate =
+        DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(parsedDate);
+    return formattedDate;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,75 +106,99 @@ class _TaskScreenState extends State<TaskScreen> {
                   child: Text(
                     "Tugas",
                     style: TypographyCollections.h1.copyWith(
-                        color: ColorCollections.primary,
-                      ),
+                      color: ColorCollections.primary,
+                    ),
                   ),
                 ),
                 const SizedBox(height: SpacingCollections.xl),
 
+                // Toggle Switch
                 Center(
                   child: ToggleSwitch(
                     minWidth: 150,
                     cornerRadius: 20.0,
-                    activeBgColors: [[ColorCollections.lightBlue], [ColorCollections.lightBlue]],
+                    activeBgColors: [
+                      [ColorCollections.lightBlue],
+                      [ColorCollections.lightBlue]
+                    ],
                     activeFgColor: Colors.white,
                     inactiveBgColor: ColorCollections.primary,
                     inactiveFgColor: Colors.white,
-                    initialLabelIndex: 1,
+                    initialLabelIndex: isPrioritySelected ? 1 : 0,
                     totalSwitches: 2,
                     labels: ['Kategori', 'Prioritas'],
                     radiusStyle: true,
                     onToggle: (index) {
-                      print('switched to: $index');
+                      setState(() {
+                        isPrioritySelected = index == 1;
+                      });
                     },
                   ),
                 ),
                 const SizedBox(height: SpacingCollections.xl),
+
                 // Task List
                 Expanded(
-                  child: ListView(
-                    children: const [
-                      // Tasks for 17th
-                      TaskDaySection(
-                        day: "17",
-                        weekday: "Wednesday",
-                        tasks: [
-                          TaskCard(
-                            startTime: "10.00",
-                            endTime: "13.00",
-                            title: "Design New UX flow for .....",
-                            subtitle: "Prioritas | Start from screen 16",
-                            status: "",
-                            cardColor: Colors.green,
-                          ),
-                          TaskCard(
-                            startTime: "14.00",
-                            endTime: "15.00",
-                            title: "Brainstorm with the team",
-                            subtitle: "Prioritas | Define the problem or ..",
-                            status: "",
-                            cardColor: Colors.purple,
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 8),
+                  child: isPrioritySelected
+                      ? _priorityTasks.isEmpty
+                          ? const Center(
+                              child: Text(
+                                "Tidak ada tugas prioritas.",
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w500),
+                              ),
+                            )
+                          : ListView.builder(
+                              itemCount: _priorityTasks.length,
+                              itemBuilder: (context, index) {
+                                final task = _priorityTasks[index];
+                                return TaskCard(
+                                  startTime:
+                                      task['waktu_mulai']?.toString() ?? '',
+                                  endTime:
+                                      task['waktu_akhir']?.toString() ?? '',
+                                  title: task['nama'] ?? '',
+                                  subtitle: task['deskripsi'] ?? '',
+                                  status: task['prioritas'] == true
+                                      ? 'Prioritas Tinggi'
+                                      : 'Biasa',
+                                  cardColor: Colors.red,
+                                );
+                              },
+                            )
+                      : _categorizedTasks.isEmpty
+                          ? const Center(
+                              child: Text(
+                                "Tidak ada tugas untuk kategori ini.",
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w500),
+                              ),
+                            )
+                          : ListView(
+                              children: _categorizedTasks.entries.map((entry) {
+                                final kategoriName = entry.key; // kategoriName sebagai String
+                                final tasks = entry.value;
 
-                      // Tasks for 18th
-                      TaskDaySection(
-                        day: "18",
-                        weekday: "Thursday",
-                        tasks: [],
-                      ),
-                      SizedBox(height: 8),
-
-                      // Tasks for 19th
-                      TaskDaySection(
-                        day: "19",
-                        weekday: "Friday",
-                        tasks: [],
-                      ),
-                    ],
-                  ),
+                                return TaskDaySection(
+                                  day: "",
+                                  weekday: kategoriName, // kategoriName langsung digunakan
+                                  tasks: tasks.map((task) {
+                                    return TaskCard(
+                                      startTime:
+                                          task['waktu_mulai']?.toString() ?? '',
+                                      endTime:
+                                          task['waktu_akhir']?.toString() ?? '',
+                                      title: task['nama'] ?? '',
+                                      subtitle: task['deskripsi'] ?? '',
+                                      status: task['prioritas'] == true
+                                          ? 'Prioritas Tinggi'
+                                          : 'Biasa',
+                                      cardColor: Colors.green,
+                                    );
+                                  }).toList(),
+                                );
+                              }).toList(),
+                            ),
                 ),
               ],
             ),
