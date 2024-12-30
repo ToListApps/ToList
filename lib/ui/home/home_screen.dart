@@ -5,6 +5,7 @@ import 'package:flutter_tolistapp/design_system/styles/spacing_collections.dart'
 import 'package:flutter_tolistapp/design_system/styles/typography_collections.dart';
 import 'package:flutter_tolistapp/design_system/widgets/task_card.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,6 +19,37 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isCalendarExpanded = true; // Mengatur status kalender
   DateTime _selectedDay = DateTime.now();
   DateTime _focusedDay = DateTime.now();
+  List<Map<String, dynamic>> _tasks = []; // Menyimpan tugas hari ini
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTasks(); // Ambil tugas saat widget diinisialisasi
+  }
+
+  // Fungsi untuk mengambil tugas dari Supabase
+  Future<void> _fetchTasks() async {
+    final supabase = Supabase.instance.client;
+    try {
+      final response = await supabase
+          .from('tolist')
+          .select('*')
+          .eq('tanggal_awal', _selectedDay.toIso8601String().substring(0, 10));
+
+      if (mounted) {
+        setState(() {
+          _tasks = List<Map<String, dynamic>>.from(response);
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching tasks: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error fetching tasks: $e')),
+        );
+      }
+    }
+  }
 
   String getGreetings() {
     final hour = DateTime.now().hour;
@@ -90,6 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             _selectedDay = selectedDay;
                             _focusedDay = focusedDay;
                           });
+                          _fetchTasks(); // Ambil tugas setelah tanggal dipilih
                         },
                         calendarStyle: CalendarStyle(
                           selectedDecoration: const BoxDecoration(
@@ -133,26 +166,31 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 10),
                 // Task List
                 Expanded(
-                  child: ListView(
-                    children: const [
-                      TaskCard(
-                        startTime: "10.00",
-                        endTime: "13.00",
-                        title: "Design New UX flow for .....",
-                        subtitle: "Start from screen 16",
-                        status: "1 Assignment Successfully",
-                        cardColor: Colors.green,
-                      ),
-                      TaskCard(
-                        startTime: "14.00",
-                        endTime: "15.00",
-                        title: "Brainstorm with the team",
-                        subtitle: "Define the problem or ...",
-                        status: "1 Assignment Missing",
-                        cardColor: Colors.purple,
-                      ),
-                    ],
-                  ),
+                  child: _tasks.isEmpty
+                      ? const Center(
+                          child: Text(
+                            'Tidak ada tugas untuk hari ini.',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        )
+                      : ListView.builder(
+                          itemCount: _tasks.length,
+                          itemBuilder: (context, index) {
+                            final task = _tasks[index];
+                            return TaskCard(
+                              startTime: task['waktu_mulai'] ?? '',
+                              endTime: task['waktu_akhir'] ?? '',
+                              title: task['nama'] ?? '',
+                              subtitle: task['deskripsi'] ?? '',
+                              status: task['status'] == true
+                                  ? 'Selesai'
+                                  : 'Belum Selesai',
+                              cardColor: task['prioritas'] == true
+                                  ? Colors.red
+                                  : Colors.green,
+                            );
+                          },
+                        ),
                 ),
               ],
             ),

@@ -9,14 +9,16 @@ import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class AddTaskScreen extends StatefulWidget {
-  const AddTaskScreen({super.key});
+class EditTaskScreen extends StatefulWidget {
+  final Map<String, dynamic> task;
+
+  const EditTaskScreen({super.key, required this.task});
 
   @override
-  State<AddTaskScreen> createState() => _AddTaskScreenState();
+  State<EditTaskScreen> createState() => _EditTaskScreenState();
 }
 
-class _AddTaskScreenState extends State<AddTaskScreen> {
+class _EditTaskScreenState extends State<EditTaskScreen> {
   bool isPriority = false;
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
@@ -30,83 +32,42 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   @override
   void initState() {
     super.initState();
-    _loadCategories();
+    _loadTaskData();
   }
 
-  Future<void> _loadCategories() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedCategories = prefs.getString('categories');
-    if (savedCategories != null) {
-      setState(() {
-        _selectedCategories.addAll(
-          List<Map<String, dynamic>>.from(json.decode(savedCategories)),
-        );
-      });
-    }
+  void _loadTaskData() {
+    _namaController.text = widget.task['nama'] ?? '';
+    _deskripsiController.text = widget.task['deskripsi'] ?? '';
+    isPriority = widget.task['prioritas'] ?? false;
+    selectedStartDate = DateTime.tryParse(widget.task['tanggal_awal'] ?? '');
+    selectedEndDate = DateTime.tryParse(widget.task['tanggal_akhir'] ?? '');
+    selectedStartTime = selectedStartDate;
+    selectedEndTime = selectedEndDate;
+    _selectedCategories
+        .addAll(List<Map<String, dynamic>>.from(widget.task['kategori'] ?? []));
   }
 
-  Future<void> _saveCategories() async {
-    final prefs = await SharedPreferences.getInstance();
-    final categoriesJson = json.encode(_selectedCategories);
-    await prefs.setString('categories', categoriesJson);
-  }
-
-  Future<void> _addCategory() async {
-    await DialogCollections.showAddCategoryDialog(
-      context: context,
-      onAddCategory: (String categoryName, Color categoryColor) {
-        setState(() {
-          _selectedCategories.add({
-            'name': categoryName,
-            'color': categoryColor.value,
-          });
-        });
-        _saveCategories();
-      },
-    );
-  }
-
-  void _removeCategory(String name) {
-    setState(() {
-      _selectedCategories.removeWhere((category) => category['name'] == name);
-    });
-    _saveCategories();
-  }
-
-  Widget _buildCategoryChip(String name, int colorValue) {
-    return Chip(
-      label: Text(name),
-      backgroundColor: Color(colorValue),
-      labelStyle: TypographyCollections.p1.copyWith(color: Colors.white),
-      onDeleted: () => _removeCategory(name),
-    );
-  }
-
-  Future<void> _pickStartDate() async {
+  Future<void> _pickDate(bool isStart) async {
     DateTime? pickedDate = await showOmniDateTimePicker(
       context: context,
       type: OmniDateTimePickerType.date,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2100),
+      initialDate: isStart
+          ? selectedStartDate ?? DateTime.now()
+          : selectedEndDate ?? DateTime.now(),
     );
 
     if (pickedDate != null) {
       setState(() {
-        selectedStartDate = pickedDate;
-        selectedEndDate = pickedDate.add(const Duration(days: 1));
-        selectedStartTime = DateTime(
-          pickedDate.year,
-          pickedDate.month,
-          pickedDate.day,
-          9,
-        );
-        selectedEndTime = selectedStartTime!.add(const Duration(hours: 1));
+        if (isStart) {
+          selectedStartDate = pickedDate;
+        } else {
+          selectedEndDate = pickedDate;
+        }
       });
     }
   }
 
-  Future<void> _pickTime({required bool isStartTime}) async {
+  Future<void> _pickTime(bool isStartTime) async {
     DateTime? pickedTime = await showOmniDateTimePicker(
       context: context,
       type: OmniDateTimePickerType.time,
@@ -116,117 +77,69 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     if (pickedTime != null) {
       setState(() {
         if (isStartTime) {
-          selectedStartTime = DateTime(
-            selectedStartDate?.year ?? DateTime.now().year,
-            selectedStartDate?.month ?? DateTime.now().month,
-            selectedStartDate?.day ?? DateTime.now().day,
-            pickedTime.hour,
-            pickedTime.minute,
-          );
-          selectedEndTime = selectedStartTime!.add(const Duration(hours: 1));
+          selectedStartTime = pickedTime;
         } else {
-          selectedEndTime = DateTime(
-            selectedEndDate?.year ?? DateTime.now().year,
-            selectedEndDate?.month ?? DateTime.now().month,
-            selectedEndDate?.day ?? DateTime.now().day,
-            pickedTime.hour,
-            pickedTime.minute,
-          );
+          selectedEndTime = pickedTime;
         }
       });
     }
   }
 
-  Future<void> _pickEndDate() async {
-    DateTime? pickedDate = await showOmniDateTimePicker(
-      context: context,
-      type: OmniDateTimePickerType.date,
-      initialDate: selectedStartDate ?? DateTime.now(),
-      firstDate: selectedStartDate ?? DateTime(2020),
-      lastDate: DateTime(2100),
-    );
-
-    if (pickedDate != null) {
-      setState(() {
-        selectedEndDate = pickedDate;
-        if (selectedEndTime != null) {
-          selectedEndTime = DateTime(
-            pickedDate.year,
-            pickedDate.month,
-            pickedDate.day,
-            selectedEndTime!.hour,
-            selectedEndTime!.minute,
-          );
-        }
-      });
-    }
-  }
-
-  Future<void> _addTaskToSupabase({
-    required String nama,
-    required String deskripsi,
-    required DateTime tanggal_awal,
-    required String waktuMulai,
-    required String waktuAkhir,
-    required List<Map<String, dynamic>> kategori,
-    required bool prioritas,
-    required DateTime tanggalAkhir,
-  }) async {
+  Future<void> _updateTask() async {
     final supabase = Supabase.instance.client;
-
     try {
-      final response = await supabase.from('tolist').insert({
-        'nama': nama,
-        'deskripsi': deskripsi,
-        'tanggal_awal': tanggal_awal.toIso8601String(),
-        'waktu_mulai': waktuMulai,
-        'waktu_akhir': waktuAkhir,
-        'kategori': kategori, // Langsung gunakan kategori sebagai JSON
-        'prioritas': prioritas,
-        'tanggal_akhir': tanggalAkhir.toIso8601String(),
-      }).select(); // Tambahkan .select() untuk memastikan hasil respons valid
-
-      if (response.isEmpty) {
-        throw Exception('Respons dari server kosong atau null');
-      }
+      await supabase.from('tolist').update({
+        'nama': _namaController.text,
+        'deskripsi': _deskripsiController.text,
+        'tanggal_awal': selectedStartDate?.toIso8601String(),
+        'tanggal_akhir': selectedEndDate?.toIso8601String(),
+        'waktu_mulai':
+            '${selectedStartTime?.hour}:${selectedStartTime?.minute}',
+        'waktu_akhir': '${selectedEndTime?.hour}:${selectedEndTime?.minute}',
+        'kategori': _selectedCategories,
+        'prioritas': isPriority,
+      }).eq('id', widget.task['id']);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tugas berhasil ditambahkan!')),
+        const SnackBar(content: Text('Tugas berhasil diperbarui')),
       );
-
       Navigator.pop(context);
-      _clearFields();
     } catch (e) {
-      // Tampilkan error di logcat untuk debugging
-      debugPrint('Error saat menambahkan tugas: $e');
-
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
+        SnackBar(content: Text('Gagal memperbarui tugas: $e')),
       );
     }
   }
 
-  void _clearFields() {
-    _namaController.clear();
-    _deskripsiController.clear();
-    selectedStartDate = null;
-    selectedEndDate = null;
-    selectedStartTime = null;
-    selectedEndTime = null;
-    _selectedCategories.clear();
-    isPriority = false;
-    setState(() {});
+  void _addCategory() async {
+    await DialogCollections.showAddCategoryDialog(
+      context: context,
+      onAddCategory: (String categoryName, Color categoryColor) {
+        setState(() {
+          _selectedCategories.add({
+            'name': categoryName,
+            'color': categoryColor.value,
+          });
+        });
+      },
+    );
+  }
+
+  void _removeCategory(String name) {
+    setState(() {
+      _selectedCategories.removeWhere((category) => category['name'] == name);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Tambah Tugas'),
+        title: const Text('Edit Tugas'),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context); // Menambahkan tombol kembali
+            Navigator.pop(context); // Navigate back to the previous screen
           },
         ),
       ),
@@ -239,7 +152,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               children: [
                 Center(
                   child: Text(
-                    'Tambah Tugas',
+                    'Edit Tugas',
                     style: TypographyCollections.h1.copyWith(
                       color: ColorCollections.primary,
                     ),
@@ -268,7 +181,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 ),
                 SizedBox(height: SpacingCollections.xl),
                 GestureDetector(
-                  onTap: _pickStartDate,
+                  onTap: () => _pickDate(true),
                   child: TextField(
                     enabled: false,
                     controller: TextEditingController(
@@ -287,7 +200,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 ),
                 SizedBox(height: SpacingCollections.l),
                 GestureDetector(
-                  onTap: _pickEndDate,
+                  onTap: () => _pickDate(false),
                   child: TextField(
                     enabled: false,
                     controller: TextEditingController(
@@ -309,7 +222,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   children: [
                     Expanded(
                       child: GestureDetector(
-                        onTap: () => _pickTime(isStartTime: true),
+                        onTap: () => _pickTime(true),
                         child: TextField(
                           enabled: false,
                           controller: TextEditingController(
@@ -330,7 +243,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     SizedBox(width: SpacingCollections.xl),
                     Expanded(
                       child: GestureDetector(
-                        onTap: () => _pickTime(isStartTime: false),
+                        onTap: () => _pickTime(false),
                         child: TextField(
                           enabled: false,
                           controller: TextEditingController(
@@ -391,45 +304,11 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   ],
                 ),
                 SizedBox(height: SpacingCollections.xl),
-                Center(
-                  child: SizedBox(
-                    width: 255,
-                    child: ButtonCollections.primary(
-                      onPressed: () {
-                        if (_namaController.text.isEmpty ||
-                            selectedStartDate == null ||
-                            selectedStartTime == null ||
-                            selectedEndDate == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Mohon lengkapi semua data')),
-                          );
-                          return;
-                        }
-
-                        final nama = _namaController.text;
-                        final deskripsi = _deskripsiController.text;
-                        final tanggal_awal = selectedStartDate!;
-                        final tanggalAkhir = selectedEndDate!;
-                        final waktuMulai =
-                            '${selectedStartTime!.hour}:${selectedStartTime!.minute}';
-                        final waktuAkhir =
-                            '${selectedEndTime!.hour}:${selectedEndTime!.minute}';
-                        final prioritas = isPriority;
-
-                        _addTaskToSupabase(
-                          nama: nama,
-                          deskripsi: deskripsi,
-                          tanggal_awal: tanggal_awal,
-                          waktuMulai: waktuMulai,
-                          waktuAkhir: waktuAkhir,
-                          kategori: _selectedCategories,
-                          prioritas: prioritas,
-                          tanggalAkhir: tanggalAkhir,
-                        );
-                      },
-                      text: 'Tambah Tugas',
-                    ),
+                SizedBox(
+                  width: double.infinity,
+                  child: ButtonCollections.primary(
+                    onPressed: _updateTask,
+                    text: 'Simpan Perubahan',
                   ),
                 ),
               ],
@@ -437,6 +316,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildCategoryChip(String name, int color) {
+    return Chip(
+      label: Text(name),
+      backgroundColor: Color(color),
+      onDeleted: () => _removeCategory(name),
     );
   }
 }

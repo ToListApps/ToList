@@ -3,6 +3,9 @@ import 'package:flutter_tolistapp/design_system/styles/color_collections.dart';
 import 'package:flutter_tolistapp/design_system/styles/spacing_collections.dart';
 import 'package:flutter_tolistapp/design_system/widgets/task_card.dart';
 import 'package:flutter_tolistapp/ui/schedule/add_task_screen.dart';
+import 'package:flutter_tolistapp/ui/schedule/edit_task_screen.dart';
+import 'package:flutter_tolistapp/ui/schedule/delete_task_screen.dart';
+import 'package:flutter_tolistapp/ui/schedule/update_status_screen.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -32,14 +35,18 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           .select('*')
           .eq('tanggal_awal', _selectedDay.toIso8601String().substring(0, 10));
 
-      setState(() {
-        _tasks = List<Map<String, dynamic>>.from(response);
-      });
+      if (mounted) {
+        setState(() {
+          _tasks = List<Map<String, dynamic>>.from(response);
+        });
+      }
     } catch (e) {
       debugPrint('Error fetching tasks: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching tasks: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error fetching tasks: $e')),
+        );
+      }
     }
   }
 
@@ -57,7 +64,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/jadwalpage.png'), // Path to your PNG file
+            image: AssetImage('assets/images/jadwalpage.png'),
             fit: BoxFit.fill,
           ),
         ),
@@ -68,7 +75,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             children: [
               // Header Calendar
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: SpacingCollections.xl),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: SpacingCollections.xl),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -112,12 +120,14 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               // Task List
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: SpacingCollections.xl),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: SpacingCollections.xl),
                   child: _tasks.isEmpty
                       ? const Center(
                           child: Text(
                             'Tidak ada tugas untuk tanggal ini.',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w500),
                           ),
                         )
                       : ListView.builder(
@@ -129,10 +139,58 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               endTime: task['waktu_akhir'] ?? '',
                               title: task['nama'] ?? '',
                               subtitle: task['deskripsi'] ?? '',
-                              status: task['status'] ?? 'Belum Ditentukan',
-                              cardColor: task['prioritas'] == true
+                              status: (task['status'] ?? false)
+                                  ? 'Selesai'
+                                  : 'Belum Selesai',
+                              cardColor: (task['prioritas'] ?? false)
                                   ? Colors.red
                                   : Colors.green,
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon:
+                                        Icon(Icons.check, color: Colors.green),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => UpdateStatusScreen(
+                                            taskId: task['id'],
+                                            currentStatus:
+                                                task['status'] ?? false,
+                                          ),
+                                        ),
+                                      ).then((_) => _fetchTasks());
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.edit, color: Colors.blue),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              EditTaskScreen(task: task),
+                                        ),
+                                      ).then((_) => _fetchTasks());
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.delete, color: Colors.red),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => DeleteTaskScreen(
+                                            taskId: task['id'],
+                                          ),
+                                        ),
+                                      ).then((_) => _fetchTasks());
+                                    },
+                                  ),
+                                ],
+                              ),
                             );
                           },
                         ),
@@ -145,7 +203,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
-              context, MaterialPageRoute(builder: (_) => AddTaskScreen()));
+            context,
+            MaterialPageRoute(builder: (_) => AddTaskScreen()),
+          ).then((_) => _fetchTasks());
         },
         backgroundColor: ColorCollections.primary,
         child: const Icon(Icons.add, color: ColorCollections.white),

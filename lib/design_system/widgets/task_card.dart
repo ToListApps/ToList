@@ -7,14 +7,17 @@ class TaskCard extends StatelessWidget {
   final String subtitle; // Deskripsi singkat tugas
   final String status; // Status tugas
   final Color cardColor; // Warna indikator tugas
+  final Widget? trailing; // Widget tambahan untuk aksi (Edit/Delete)
 
-  const TaskCard({super.key, 
+  const TaskCard({
+    super.key,
     required this.startTime,
     required this.endTime,
     required this.title,
     required this.subtitle,
     required this.status,
     required this.cardColor,
+    this.trailing, // Trailing opsional
   });
 
   @override
@@ -87,11 +90,18 @@ class TaskCard extends StatelessWidget {
               ),
             ),
 
-            // Ikon Opsi
-            const Icon(
-              Icons.more_vert,
-              color: Colors.grey,
-            ),
+            // Trailing (Edit & Delete Button atau Opsi Lain)
+            if (trailing != null)
+              Padding(
+                padding: const EdgeInsets.only(
+                    left: 8.0), // Add some space between task info and trailing
+                child: trailing,
+              )
+            else
+              const Icon(
+                Icons.more_vert,
+                color: Colors.grey,
+              ),
           ],
         ),
       ),
