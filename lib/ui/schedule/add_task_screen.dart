@@ -193,6 +193,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Tugas berhasil ditambahkan!')),
     );
+
+    Navigator.pop(context);
+    _clearFields();
   } catch (e) {
     // Tampilkan error di logcat untuk debugging
     debugPrint('Error saat menambahkan tugas: $e');
@@ -201,6 +204,18 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       SnackBar(content: Text('Error: $e')),
     );
   }
+}
+
+void _clearFields() {
+  _namaController.clear();
+  _deskripsiController.clear();
+  selectedStartDate = null;
+  selectedEndDate = null;
+  selectedStartTime = null;
+  selectedEndTime = null;
+  _selectedCategories.clear();
+  isPriority = false;
+  setState(() {});
 }
 
 
