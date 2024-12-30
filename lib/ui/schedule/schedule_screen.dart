@@ -4,6 +4,7 @@ import 'package:flutter_tolistapp/design_system/styles/spacing_collections.dart'
 import 'package:flutter_tolistapp/design_system/widgets/task_card.dart';
 import 'package:flutter_tolistapp/ui/schedule/add_task_screen.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({super.key});
@@ -15,14 +16,48 @@ class ScheduleScreen extends StatefulWidget {
 class _ScheduleScreenState extends State<ScheduleScreen> {
   DateTime _selectedDay = DateTime.now();
   DateTime _focusedDay = DateTime.now();
+  List<Map<String, dynamic>> _tasks = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTasks(); // Fetch tasks on initial load
+  }
+
+  Future<void> _fetchTasks() async {
+    final supabase = Supabase.instance.client;
+    try {
+      final response = await supabase
+          .from('tolist')
+          .select('*')
+          .eq('tanggal_awal', _selectedDay.toIso8601String().substring(0, 10));
+
+      setState(() {
+        _tasks = List<Map<String, dynamic>>.from(response);
+      });
+    } catch (e) {
+      debugPrint('Error fetching tasks: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching tasks: $e')),
+      );
+    }
+  }
+
+  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
+    setState(() {
+      _selectedDay = selectedDay;
+      _focusedDay = focusedDay;
+    });
+    _fetchTasks(); // Fetch tasks for the selected day
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage(
-                'assets/images/jadwalpage.png'), // Path to your PNG file
+            image: AssetImage('assets/images/jadwalpage.png'), // Path to your PNG file
             fit: BoxFit.fill,
           ),
         ),
@@ -52,17 +87,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       selectedDayPredicate: (day) {
                         return isSameDay(_selectedDay, day);
                       },
-                      onDaySelected: (selectedDay, focusedDay) {
-                        setState(() {
-                          _selectedDay = selectedDay;
-                          _focusedDay = focusedDay;
-                        });
-                      },
-                      calendarFormat:
-                          CalendarFormat.week, // Tampilkan hanya satu baris
+                      onDaySelected: _onDaySelected,
+                      calendarFormat: CalendarFormat.week,
                       availableCalendarFormats: const {
-                        CalendarFormat.week:
-                            'Week', // Nonaktifkan opsi format lain
+                        CalendarFormat.week: 'Week',
                       },
                       calendarStyle: CalendarStyle(
                         todayDecoration: BoxDecoration(
@@ -85,26 +113,29 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: SpacingCollections.xl),
-                  child: ListView(
-                    children: const [
-                      TaskCard(
-                        startTime: "10.00",
-                        endTime: "13.00",
-                        title: "Design New UX flow for .....",
-                        subtitle: "Start from screen 16",
-                        status: "1 Assignment Successfully",
-                        cardColor: Colors.green,
-                      ),
-                      TaskCard(
-                        startTime: "14.00",
-                        endTime: "15.00",
-                        title: "Brainstorm with the team",
-                        subtitle: "Define the problem or ...",
-                        status: "1 Assignment Missing",
-                        cardColor: Colors.purple,
-                      ),
-                    ],
-                  ),
+                  child: _tasks.isEmpty
+                      ? const Center(
+                          child: Text(
+                            'Tidak ada tugas untuk tanggal ini.',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                          ),
+                        )
+                      : ListView.builder(
+                          itemCount: _tasks.length,
+                          itemBuilder: (context, index) {
+                            final task = _tasks[index];
+                            return TaskCard(
+                              startTime: task['waktu_mulai'] ?? '',
+                              endTime: task['waktu_akhir'] ?? '',
+                              title: task['nama'] ?? '',
+                              subtitle: task['deskripsi'] ?? '',
+                              status: task['status'] ?? 'Belum Ditentukan',
+                              cardColor: task['prioritas'] == true
+                                  ? Colors.red
+                                  : Colors.green,
+                            );
+                          },
+                        ),
                 ),
               ),
             ],
