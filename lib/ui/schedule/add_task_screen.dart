@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_tolistapp/data/provider/user_manager.dart';
 import 'package:flutter_tolistapp/design_system/styles/color_collections.dart';
 import 'package:flutter_tolistapp/design_system/styles/spacing_collections.dart';
 import 'package:flutter_tolistapp/design_system/styles/typography_collections.dart';
@@ -173,6 +174,16 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     required DateTime tanggalAkhir,
   }) async {
     final supabase = Supabase.instance.client;
+    final currentUser = UserManager().getUser();
+
+    if (currentUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error: User tidak ditemukan.')),
+      );
+      return;
+    }
+
+    final uid = currentUser.uid;
 
     try {
       final response = await supabase.from('tolist').insert({
@@ -181,10 +192,11 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         'tanggal_awal': tanggal_awal.toIso8601String(),
         'waktu_mulai': waktuMulai,
         'waktu_akhir': waktuAkhir,
-        'kategori': kategori, // Langsung gunakan kategori sebagai JSON
+        'kategori': kategori,
         'prioritas': prioritas,
         'tanggal_akhir': tanggalAkhir.toIso8601String(),
-      }).select(); // Tambahkan .select() untuk memastikan hasil respons valid
+        'uid': uid, // Tambahkan UID ke Supabase
+      }).select();
 
       if (response.isEmpty) {
         throw Exception('Respons dari server kosong atau null');
@@ -197,7 +209,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       Navigator.pop(context);
       _clearFields();
     } catch (e) {
-      // Tampilkan error di logcat untuk debugging
       debugPrint('Error saat menambahkan tugas: $e');
 
       ScaffoldMessenger.of(context).showSnackBar(

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_tolistapp/data/provider/user_manager.dart';
 import 'package:flutter_tolistapp/design_system/styles/color_collections.dart';
 import 'package:flutter_tolistapp/design_system/styles/spacing_collections.dart';
 import 'package:flutter_tolistapp/design_system/styles/typography_collections.dart';
@@ -30,8 +31,20 @@ class _TaskScreenState extends State<TaskScreen> {
   Future<void> _fetchTasks() async {
     final supabase = Supabase.instance.client;
 
+    final currentUser = UserManager().getUser();
+
+    if (currentUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error: User tidak ditemukan.')),
+      );
+      return;
+    }
+
     try {
-      final response = await supabase.from('tolist').select('*');
+      final response = await supabase
+        .from('tolist')
+        .select('*')
+        .eq('uid', currentUser.uid);
 
       List<Map<String, dynamic>> tasks =
           List<Map<String, dynamic>>.from(response);

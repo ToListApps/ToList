@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_tolistapp/data/provider/user_manager.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -46,6 +47,8 @@ class _ProductivityChartState extends State<ProductivityChart> {
   // Ambil data dari Supabase
   Future<void> fetchTasks() async {
     final supabase = Supabase.instance.client;
+    
+    final currentUser = UserManager().getUser();
 
     // Hitung awal minggu (Senin) dan akhir minggu (Minggu) berdasarkan hari ini
     final today = DateTime.now();
@@ -57,6 +60,7 @@ class _ProductivityChartState extends State<ProductivityChart> {
       final response = await supabase
           .from('tolist')
           .select('*')
+          .eq('uid', currentUser!.uid)
           .gte('tanggal_akhir', startDate.toIso8601String().substring(0, 10))
           .lte('tanggal_akhir', endDate.toIso8601String().substring(0, 10));
 

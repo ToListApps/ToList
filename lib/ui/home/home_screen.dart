@@ -34,7 +34,8 @@ class _HomeScreenState extends State<HomeScreen> {
       final response = await supabase
           .from('tolist')
           .select('*')
-          .eq('tanggal_awal', _selectedDay.toIso8601String().substring(0, 10));
+          .eq('tanggal_akhir', _selectedDay.toIso8601String().substring(0, 10))
+          .eq('uid', user!.uid);
 
       if (mounted) {
         setState(() {

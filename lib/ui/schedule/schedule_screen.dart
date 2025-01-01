@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tolistapp/data/provider/user_manager.dart';
 import 'package:flutter_tolistapp/design_system/styles/color_collections.dart';
 import 'package:flutter_tolistapp/design_system/styles/spacing_collections.dart';
 import 'package:flutter_tolistapp/design_system/widgets/task_card.dart';
@@ -29,11 +30,22 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
   Future<void> _fetchTasks() async {
     final supabase = Supabase.instance.client;
+    
+    final currentUser = UserManager().getUser();
+
+    if (currentUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error: User tidak ditemukan.')),
+      );
+      return;
+    }
+
     try {
       final response = await supabase
           .from('tolist')
           .select('*')
-          .eq('tanggal_akhir', _selectedDay.toIso8601String().substring(0, 10));
+          .eq('tanggal_akhir', _selectedDay.toIso8601String().substring(0, 10))
+          .eq('uid', currentUser.uid);
 
       if (mounted) {
         setState(() {
