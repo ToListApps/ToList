@@ -92,13 +92,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _logout() async {
     try {
-      await GoogleSignIn().disconnect();
+      // Gunakan instance GoogleSignIn yang konsisten
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+
+      // Periksa jika pengguna sudah login dan disconnect jika perlu
+      if (await googleSignIn.isSignedIn()) {
+        await googleSignIn.disconnect();
+      }
+
+      // Logout dari Firebase
       await _auth.signOut();
+
+      // Hapus data pengguna dari UserManager
       UserManager().setUser(null);
+
+      // Berikan feedback keberhasilan logout
+      print('Logout berhasil');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Logout berhasil')),
+      );
+
+      // Opsional: Navigasi ke layar login jika diperlukan
+      // Navigator.pushReplacementNamed(context, '/login');
     } catch (error) {
       print('Logout Gagal: $error');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Logout Gagal'))
+        SnackBar(content: Text('Logout Gagal: $error')),
       );
     }
   }

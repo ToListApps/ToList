@@ -28,6 +28,12 @@ class _LoginScreenState extends State<LoginScreen> {
         UserManager().setUser(event);
       });
     });
+
+    _googleSignIn.isSignedIn().then((isSignedin) {
+      if (isSignedin) {
+        _googleSignIn.disconnect();
+      }
+    });
   }
 
   @override
@@ -71,6 +77,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _handleGoogleSignIn() async {
     try {
+      if (await _googleSignIn.isSignedIn()) {
+        await _googleSignIn.disconnect();
+      }
+
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
         return;
@@ -79,10 +89,15 @@ class _LoginScreenState extends State<LoginScreen> {
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
 
+      if (googleAuth.accessToken == null || googleAuth.idToken == null) {
+        throw Exception('Token Google tidak valid');
+      }
+
       final AuthCredential credential = GoogleAuthProvider.credential(
           accessToken: googleAuth.accessToken, idToken: googleAuth.idToken);
 
       await _auth.signInWithCredential(credential);
+      print('Login berhasil');
     } catch (error) {
       print('Login Google gagal: $error');
       ScaffoldMessenger.of(context)
